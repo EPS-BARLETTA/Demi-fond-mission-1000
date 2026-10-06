@@ -1,25 +1,40 @@
 # Demi-fond · Mission 1000
 
-Application statique de suivi EPS pour le professeur. Aucune donnée d’élève n’est envoyée à un serveur. Les listes, temps et évaluations sont conservés dans le navigateur de l’appareil utilisé.
+Carnet EPS du professeur, réservé aux sixièmes. Les classes et résultats restent sur l’appareil, dans le navigateur. Aucune donnée d’élève n’est envoyée à un serveur.
 
 ## Mise en ligne
 
-Les quatre fichiers `index.html`, `sw.js`, `manifest.webmanifest` et `icon.svg` doivent être placés ensemble à la racine du dépôt. GitHub : Settings → Pages → Deploy from a branch → main → / (root) → Save. Le lien du site sera affiché par GitHub après publication. Aucune compilation nécessaire. Compatible également avec un hébergement statique Vercel.
+Hébergement statique : tous les fichiers sont à la racine, sans compilation. Compatible Vercel (Framework Preset: Other) ou GitHub Pages (Settings → Pages → main → / root).
 
-## Utilisation
+## Relevés et séances
 
-1. Gérer les classes : coller un élève par ligne ou importer TXT / CSV (une colonne Nom Prénom ou deux colonnes Nom ; Prénom).
-2. Choisir le cycle et la séance. Mission 1000 démarre sur S4, 2 × 500 m.
-3. Réglages : date, distances et consigne. `0` désigne une distance libre, utile pour les séances de durée fixe. Les distances ne peuvent plus changer après saisie d’un temps ; ajouter une séance dans ce cas.
-4. Saisir le temps sous la forme 3:15 ou 195 (secondes). Vitesse moyenne pondérée et kilomètres sont calculés seulement sur les courses renseignées. Les absents/inaptes ne contribuent pas au kilométrage. Leurs temps sont conservés si leur statut change.
-5. Badges : non évalué, 0, 1 ou 2 points. Les critères sont proposés, adaptables pédagogiquement, et validés par le professeur. La suggestion de régularité nécessite deux courses de même distance : écart absolu / premier temps, seuils 10 % et 20 %.
-6. Bilan : performance saisie manuellement sur 6, badges sur 12 ; note /18 uniquement quand les six badges et la performance ont été évalués. Sinon le bilan affiche les points observés. Export CSV du bilan et impression.
-7. Exporter la sauvegarde JSON après chaque séance. Pour passer sur un autre appareil, importer cette sauvegarde. L’import remplace les données après confirmation.
+- Repères : nombre de tours sur 3 minutes et sur 5 minutes.
+- Repères : nombre de tours sur deux courses de 6 minutes.
+- S4 : temps des deux 500 m.
+- S5 et S6 : répétition puis évaluation du 1000 m.
 
-Mission 1000 comporte six séances. Le cycle Première reprend 250 / 250 / 500 / 250 / 250 / 500 m. On peut ajouter des séances et régler leurs distances dans chaque cycle.
+Dans Réglages, on peut choisir « Tours sur une durée » ou « Temps sur une distance ». La longueur d’un tour est facultative : sans cette donnée, les tours sont conservés, mais les distances et vitesses ne sont pas supposées. Avec une longueur approximative, les calculs sont eux aussi approximatifs. Modifier cette longueur recalcule les résultats existants.
 
-## Hors connexion et mises à jour
+Pour les courses chronométrées, entrer `3:15` ou `195` secondes. Pour les durées fixes, entrer seulement le nombre de tours. Enregistrement à la sortie du champ. Ajouter des séances pour d’autres relevés ou d’autres dates. Une séance ne doit pas changer de format ou de durée après saisie des résultats.
 
-Ouvrir le site au moins une fois avec Internet pour préparer le cache. Sur iPad, ajouter le site à l’écran d’accueil depuis Safari. Le service worker fournit les fichiers en cas de coupure ; les données restent locales. Après modification des fichiers, incrémenter le nom CACHE dans sw.js et rouvrir avec Internet. Une nouvelle version du service worker attend la fermeture des anciennes fenêtres avant activation. Aucun rechargement forcé pendant la saisie.
+La mise à jour conserve les classes, les évaluations et les séances contenant déjà des résultats de Mission 1000. Les séances initiales vides sont remplacées par les deux formats de relevés ci-dessus. Le cycle Première a été retiré.
 
-Les données dépendent de l’appareil, du navigateur et de l’adresse exacte du site : changer d’adresse, effacer les données du navigateur ou utiliser la navigation privée peut les rendre indisponibles. Exporter/importer permet de les transférer. Ne jamais déposer les sauvegardes d’élèves dans un dépôt public.
+## Classes et badges
+
+Créer une classe, coller un élève par ligne ou importer TXT / CSV (Nom Prénom ou Nom ; Prénom). Les doublons exacts sont ignorés. Les listes sont affichées en ordre alphabétique, mais les résultats sont associés par identifiants d’élèves, pas par numéro de ligne.
+
+Six badges : régularité, autonomie, entraide, engagement, sécurité, coopération/mixité. Chaque badge reste non évalué ou reçoit 0, 1 ou 2 points. Les points sont validés par le professeur. La suggestion de régularité compare les temps sur deux distances identiques, ou les tours sur deux durées identiques : écart relatif au premier relevé, seuils 10 % et 20 %. Aucune comparaison entre 3 et 5 minutes.
+
+Performance sur 6 saisie manuellement ; badges sur 12. La note /18 n’est affichée qu’une fois les six badges et la performance évalués. Sinon, seuls les points observés sont affichés.
+
+## Bilans et sauvegardes
+
+Le bilan du cycle propose un export HTML autonome : tableau général de classe, noms cliquables ouvrant les fiches avec toutes les courses, les tours, les badges et observations. Ce fichier s’ouvre sans connexion et propose une impression de tous les bilans. Il constitue une copie au moment de l’export, pas une sauvegarde réimportable. Export CSV également disponible.
+
+Pour réimporter ou transmettre les données à un autre appareil, utiliser la sauvegarde JSON. L’import remplace les données après confirmation. Exporter une sauvegarde après chaque séance, notamment avant une mise à jour.
+
+## Hors connexion
+
+Ouvrir le site avec Internet avant l’utilisation hors connexion. Le service worker met en cache les fichiers. Sur iPad, ajouter le site à l’écran d’accueil depuis Safari. Après mise à jour, rouvrir avec Internet puis fermer les anciennes fenêtres pour permettre l’activation du nouveau service worker.
+
+Les données dépendent du navigateur, de l’appareil et de l’adresse exacte du site. Effacer les données du navigateur ou changer d’adresse peut les rendre indisponibles. Ne pas déposer les sauvegardes d’élèves dans le dépôt public.
