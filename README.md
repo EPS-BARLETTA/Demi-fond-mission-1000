@@ -1,44 +1,68 @@
 # Demi-fond · Mission 1000
 
-Carnet EPS du professeur, réservé aux sixièmes. Les classes et résultats restent sur l’appareil, dans le navigateur. Aucune donnée d’élève n’est envoyée à un serveur.
+Carnet EPS du professeur pour les sixièmes. Application statique, sans compilation, compatible Vercel (Other) ou GitHub Pages. Classes et résultats conservés dans le navigateur ; aucune donnée d’élève envoyée à un serveur.
 
-## Mise en ligne
+## Cycle
 
-Hébergement statique : tous les fichiers sont à la racine, sans compilation. Compatible Vercel (Framework Preset: Other) ou GitHub Pages (Settings → Pages → main → / root).
+- S1 : découverte de l’allure et badges ; aucune performance à saisir.
+- S2 : travail de régularité et relevé facultatif sur 6 minutes pour estimer la VMA.
+- S3 : routine, 3 / 5 / 6 minutes en tours ; défi 1 et 2 minutes sans indicateur, non noté.
+- S4 : 2 × 500 m ; attribution de l’indice sur 2.
+- S5 : premier 1000 m chronométré.
+- S6 : deuxième 1000 m ; meilleur temps de S5 ou S6 retenu.
 
-## Relevés et séances
+Les listes de classes et les relevés existants sont préservés. Les anciennes séances « Repères » sont réparties dans S2 et S3 ; les anciens relevés non convertibles restent archivés.
 
-- Repères : nombre de tours sur 3 minutes et sur 5 minutes.
-- Repères : nombre de tours sur deux courses de 6 minutes.
-- S4 : temps des deux 500 m.
-- S5 et S6 : répétition puis évaluation du 1000 m.
+## Note sur 20
 
-Dans Réglages, on peut choisir « Tours sur une durée » ou « Temps sur une distance ». Le bouton « Longueur de la piste » définit la longueur d’un tour pour la classe. Une longueur renseignée dans les réglages d’une séance prend priorité pour cette séance. La longueur d’un tour est facultative : sans cette donnée, les tours sont conservés, mais les distances et vitesses ne sont pas supposées. Avec une longueur approximative, les calculs sont eux aussi approximatifs. Modifier cette longueur recalcule les résultats existants.
+**Badges /12 + performance /6 + indice /2.** Les composantes sont affichées séparément dans le bilan et la fiche élève. La note finale n’est affichée que lorsque les sept badges, une performance sur 1000 m et l’indice des deux 500 m sont renseignés. Sinon, seuls les points observés sont affichés.
 
-Pour les courses chronométrées, entrer `3:15` ou `195` secondes. Pour les durées fixes, entrer seulement le nombre de tours. Enregistrement à la sortie du champ. Ajouter des séances pour d’autres relevés ou d’autres dates. Une séance ne doit pas changer de format ou de durée après saisie des résultats.
+### Badges /12
 
-La mise à jour conserve les classes, les évaluations et les séances contenant déjà des résultats de Mission 1000. Les séances initiales vides sont remplacées par les deux formats de relevés ci-dessus. Le cycle Première a été retiré.
+Sept badges : régularité observée pendant la course, autonomie, entraide, engagement, sécurité, coopération/mixité, « Je ne marche pas ». Non évalué reste distinct de zéro.
 
-## Classes et badges
+Quatre niveaux : rouge 0, orange 1, vert clair 1,75, vert foncé 2 points. La somme sur 14 est ramenée sur 12. Tous verts clairs : 10,5/12 ; tous verts foncés : 12/12. Les niveaux existants sont conservés et reprennent le barème actuel lors du calcul.
 
-Créer une classe, coller un élève par ligne ou importer TXT / CSV (Nom Prénom ou Nom ; Prénom). Les doublons exacts sont ignorés. Les listes sont affichées en ordre alphabétique, mais les résultats sont associés par identifiants d’élèves, pas par numéro de ligne.
+Grille tactile : premier clic sur une case vide = acquis, puis super, non acquis, en cours, acquis. Enregistrement immédiat. « Classe : acquis » applique le niveau vert clair à une colonne pour les élèves présents à la séance choisie ; ajuster ensuite les exceptions. Mode effacement et annulation de la dernière action disponibles. Le défilement de la grille est conservé après un clic.
 
-Six badges : régularité, autonomie, entraide, engagement, sécurité, coopération/mixité. Chaque badge reste non évalué ou reçoit 0, 1 ou 2 points. Les points sont validés par le professeur. La suggestion de régularité compare les temps sur deux distances identiques, ou les tours sur deux durées identiques : écart relatif au premier relevé, seuils 10 % et 20 %. Aucune comparaison entre 3 et 5 minutes.
+### Performance /6
 
-Performance sur 6 saisie manuellement ; badges sur 12. La note /18 n’est affichée qu’une fois les six badges et la performance évalués. Sinon, seuls les points observés sont affichés.
+Meilleur temps sur 1000 m de S5 ou S6, parmi les courses renseignées avec statut Présent. Vitesse = 3600 / temps en secondes.
 
-## Bilans et sauvegardes
+| Vitesse km/h | Points /6 |
+|---|---:|
+| moins de 8 | 0 |
+| 8 à moins de 9 | 1 |
+| 9 à moins de 10 | 2 |
+| 10 à moins de 11 | 3 |
+| 11 à moins de 12 | 4 |
+| 12 à moins de 13 | 5 |
+| 13 et plus | 6 |
 
-Le bilan du cycle propose un export HTML autonome : tableau général de classe, noms cliquables ouvrant les fiches avec toutes les courses, les tours, les badges et observations. Ce fichier s’ouvre sans connexion et propose une impression de tous les bilans. Il constitue une copie au moment de l’export, pas une sauvegarde réimportable. Export CSV également disponible.
+Une correction manuelle facultative de la performance sur 6 reste possible dans Notes. Laisser ce champ vide pour le calcul automatique. Les 5 minutes donnent un repère provisoire et une projection du chrono par 500 m. Les 6 minutes ne contribuent pas à la note de performance.
 
-Pour réimporter ou transmettre les données à un autre appareil, utiliser la sauvegarde JSON. L’import remplace les données après confirmation. Exporter une sauvegarde après chaque séance, notamment avant une mise à jour.
+### Indice /2
+
+Indice gagné sur les deux 500 m de S4, puis conservé dans le bilan de S5 et S6. Les deux chronos et le statut Présent sont nécessaires.
+
+Écart % = différence absolue des chronos / chrono le plus rapide × 100.
+
+Indice /100 = maximum de 0 et (100 − 5 × écart %). Points /2 = indice /50. Écart de 0 % : 2 points ; 5 % : 1,5 ; 10 % : 1 ; 20 % ou plus : 0.
+
+Le badge Régularité porte sur l’allure observée au cours d’une course, indépendamment de cet indice chronométrique. Aucune validation automatique de ce badge à partir de l’indice.
+
+## Saisie et sauvegardes
+
+Gérer les classes : coller un élève par ligne ou importer TXT/CSV (Nom Prénom ou Nom ; Prénom). Les doublons exacts sont ignorés. Les résultats suivent les identifiants des élèves, pas les numéros de ligne.
+
+Tours : saisir uniquement le nombre. « Longueur de la piste » définit les mètres d’un tour pour la classe ; une valeur propre à une séance est prioritaire. Sans longueur, aucun kilométrage ou vitesse n’est supposé. Une longueur approximative produit des calculs approximatifs. Temps : saisir 3:15 ou 195 secondes. Enregistrement à la sortie du champ. Les absents et inaptes ne contribuent pas au kilométrage ni aux résultats calculés.
+
+Bilan HTML autonome : tableau général avec noms cliquables, fiches individuelles avec toutes les courses, projections, badges et les trois composantes de la note /20. Export CSV et impression disponibles. Le HTML est une copie au moment de l’export, pas une sauvegarde réimportable.
+
+Exporter la sauvegarde JSON après chaque séance. Importer sur un autre appareil pour transférer les données. L’import remplace les données après confirmation. Ne pas déposer les sauvegardes d’élèves dans le dépôt public.
 
 ## Hors connexion
 
-Ouvrir le site avec Internet avant l’utilisation hors connexion. Le service worker met en cache les fichiers. Sur iPad, ajouter le site à l’écran d’accueil depuis Safari. Après mise à jour, rouvrir avec Internet puis fermer les anciennes fenêtres pour permettre l’activation du nouveau service worker.
+Ouvrir le site avec Internet pour préparer le cache. Sur iPad, ajouter à l’écran d’accueil depuis Safari. Après une mise à jour, rouvrir avec Internet et fermer les anciennes fenêtres pour activer le nouveau service worker. Les données dépendent de l’appareil, du navigateur et de l’adresse exacte du site.
 
-Les données dépendent du navigateur, de l’appareil et de l’adresse exacte du site. Effacer les données du navigateur ou changer d’adresse peut les rendre indisponibles. Ne pas déposer les sauvegardes d’élèves dans le dépôt public.
-
-## Vitesse et VMA estimée sur 6 minutes
-
-Distance = tours × longueur de piste. Kilomètres = distance / 1000. Vitesse moyenne = distance / durée en secondes × 3,6. Sur une course de 360 secondes, la VMA estimée affichée est distance en mètres / 100. Elle représente une estimation de VMA seulement si l’élève a couru la plus grande distance possible à effort maximal ; sinon la mesure décrit simplement son allure moyenne. Chaque course de 6 minutes est affichée séparément, sans transformer le cumul des deux courses en test de VMA.
+Sur 6 minutes, la distance en mètres /100 donne la vitesse moyenne, affichée comme estimation de VMA pour une course à effort maximal. Sinon elle décrit l’allure moyenne. Chaque course est traitée séparément.
