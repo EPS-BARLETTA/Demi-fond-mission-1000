@@ -13,7 +13,7 @@ Hébergement statique : tous les fichiers sont à la racine, sans compilation. C
 - S4 : temps des deux 500 m.
 - S5 et S6 : répétition puis évaluation du 1000 m.
 
-Dans Réglages, on peut choisir « Tours sur une durée » ou « Temps sur une distance ». La longueur d’un tour est facultative : sans cette donnée, les tours sont conservés, mais les distances et vitesses ne sont pas supposées. Avec une longueur approximative, les calculs sont eux aussi approximatifs. Modifier cette longueur recalcule les résultats existants.
+Dans Réglages, on peut choisir « Tours sur une durée » ou « Temps sur une distance ». Le bouton « Longueur de la piste » définit la longueur d’un tour pour la classe. Une longueur renseignée dans les réglages d’une séance prend priorité pour cette séance. La longueur d’un tour est facultative : sans cette donnée, les tours sont conservés, mais les distances et vitesses ne sont pas supposées. Avec une longueur approximative, les calculs sont eux aussi approximatifs. Modifier cette longueur recalcule les résultats existants.
 
 Pour les courses chronométrées, entrer `3:15` ou `195` secondes. Pour les durées fixes, entrer seulement le nombre de tours. Enregistrement à la sortie du champ. Ajouter des séances pour d’autres relevés ou d’autres dates. Une séance ne doit pas changer de format ou de durée après saisie des résultats.
 
@@ -38,3 +38,7 @@ Pour réimporter ou transmettre les données à un autre appareil, utiliser la s
 Ouvrir le site avec Internet avant l’utilisation hors connexion. Le service worker met en cache les fichiers. Sur iPad, ajouter le site à l’écran d’accueil depuis Safari. Après mise à jour, rouvrir avec Internet puis fermer les anciennes fenêtres pour permettre l’activation du nouveau service worker.
 
 Les données dépendent du navigateur, de l’appareil et de l’adresse exacte du site. Effacer les données du navigateur ou changer d’adresse peut les rendre indisponibles. Ne pas déposer les sauvegardes d’élèves dans le dépôt public.
+
+## Vitesse et VMA estimée sur 6 minutes
+
+Distance = tours × longueur de piste. Kilomètres = distance / 1000. Vitesse moyenne = distance / durée en secondes × 3,6. Sur une course de 360 secondes, la VMA estimée affichée est distance en mètres / 100. Elle représente une estimation de VMA seulement si l’élève a couru la plus grande distance possible à effort maximal ; sinon la mesure décrit simplement son allure moyenne. Chaque course de 6 minutes est affichée séparément, sans transformer le cumul des deux courses en test de VMA.
