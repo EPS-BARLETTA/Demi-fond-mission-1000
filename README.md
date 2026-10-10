@@ -74,3 +74,5 @@ S4 : présence et deux temps de 500 m, repère de régularité hors note. S5 et 
 « Fiche observateur A4 » télécharge le PDF inclus dans l’application : quatre fiches individuelles sur une page A4, dix cases à cocher, espaces pour les temps cumulés à 500 et 1000 m. La fiche est conçue pour une piste mesurée à 100 m et est ajoutée au cache hors connexion.
 
 La clé de stockage `mission1000-v1`, les identifiants, les anciens relevés et les validations sont conservés. Version interface et cache : v10.
+
+La fiche observateur PDF est générée sur l’appareil à partir de la longueur de piste de la séance sélectionnée : quatre cartes A4, tours complets à cocher, repères exacts 500 m et 1000 m (tours et mètres supplémentaires). Le chrono reste cumulé.
