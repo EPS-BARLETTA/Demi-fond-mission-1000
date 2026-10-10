@@ -55,7 +55,7 @@ Le badge Régularité porte sur l’allure observée au cours d’une course, in
 
 Gérer les classes : coller un élève par ligne ou importer TXT/CSV (Nom Prénom ou Nom ; Prénom). Les doublons exacts sont ignorés. Les résultats suivent les identifiants des élèves, pas les numéros de ligne.
 
-Tours : saisir uniquement le nombre. « Longueur de la piste » définit les mètres d’un tour pour la classe ; une valeur propre à une séance est prioritaire. Sans longueur, aucun kilométrage ou vitesse n’est supposé. Une longueur approximative produit des calculs approximatifs. Temps : saisir 3:15 ou 195 secondes. Enregistrement à la sortie du champ. Les absents et inaptes ne contribuent pas au kilométrage ni aux résultats calculés.
+Tours : saisir uniquement le nombre. « Longueur de la piste » définit les mètres d’un tour pour la classe et la séance sélectionnées. Une option applique aussi cette longueur aux séances suivantes sans relevé. Les longueurs des autres séances et des autres classes sont conservées ; les anciennes distances ne sont pas recalculées lors du changement de piste pour une nouvelle séance. Les longueurs par classe et séance sont incluses dans la sauvegarde JSON. Sans longueur, aucun kilométrage ou vitesse n’est supposé. Une longueur approximative produit des calculs approximatifs. Temps : saisir 3:15 ou 195 secondes. Enregistrement à la sortie du champ. Les absents et inaptes ne contribuent pas au kilométrage ni aux résultats calculés.
 
 Bilan HTML autonome : tableau général avec noms cliquables, fiches individuelles avec toutes les courses, projections, badges et les trois composantes de la note /20. Export CSV et impression disponibles. Le HTML est une copie au moment de l’export, pas une sauvegarde réimportable.
 
@@ -66,3 +66,9 @@ Exporter la sauvegarde JSON après chaque séance. Importer sur un autre apparei
 Ouvrir le site avec Internet pour préparer le cache. Sur iPad, ajouter à l’écran d’accueil depuis Safari. Après une mise à jour, rouvrir avec Internet et fermer les anciennes fenêtres pour activer le nouveau service worker. Les données dépendent de l’appareil, du navigateur et de l’adresse exacte du site.
 
 Sur 6 minutes, la distance en mètres /100 donne la vitesse moyenne, affichée comme estimation de VMA pour une course à effort maximal. Sinon elle décrit l’allure moyenne. Chaque course est traitée séparément.
+
+## Écran simple S4 à S6
+
+S4 : présence et deux temps de 500 m ; indice /2 automatique. S5 et S6 : présence et temps final du 1000 m ; meilleur essai retenu. Aucun temps à annoncer ni passage intermédiaire obligatoire. Le nombre de tours est affiché avec la longueur de piste de la séance (5 tours / 10 tours sur 100 m). Le badge « Je ne marche pas » se règle directement par niveau, sans changer les autres badges. Le bouton des autres badges permet toujours de les ajuster. En S6, le premier temps de S5 reste visible. Le déroulé de la séance est disponible dans un panneau dépliable.
+
+La clé de stockage `mission1000-v1`, les identifiants, les relevés et les validations sont conservés. Version interface et cache : v9.
