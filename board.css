@@ -178,3 +178,17 @@ body:has(.board-expanded) { overflow: hidden; }
 .board-expanded .board-surface:not(.board-ladder) { height: 100%; min-height: 300px; }
 .board-expanded .board-ladder { min-height: 100%; }
 .board-expanded .board-help { margin-block: 6px; }
+
+.board-marker-note.board-note-attached {
+  min-width: 32px;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 9px;
+}
+.board-student.board-note-target {
+  outline: 3px solid #ffc04a;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #fff1c5;
+}
+#boardStudentLabel { margin-top: 10px; }

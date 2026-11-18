@@ -29,6 +29,7 @@ function normalizeBoard(raw, studentIds) {
       positions[id] = {x: boardNumber(point.x, 50), y: boardNumber(point.y, 50)};
     }
   }
+  const roster = new Set(studentIds);
   const marks = Array.isArray(raw.marks) ? raw.marks : [];
   return {
     background: Object.hasOwn(BOARD_BACKGROUNDS, raw.background) ? raw.background : 'blank',
@@ -39,6 +40,7 @@ function normalizeBoard(raw, studentIds) {
       ['note', 'group'].includes(m.type) && typeof m.text === 'string').slice(0, 100).map(m => ({
       id: m.id, type: m.type, text: m.text.slice(0, m.type === 'note' ? 1200 : 32),
       x: boardNumber(m.x, 50), y: boardNumber(m.y, 50),
+      ...(m.type === 'note' && roster.has(m.studentId) ? {studentId: m.studentId} : {}),
     })),
   };
 }
@@ -55,7 +57,7 @@ function renderClassBoard(group, students) {
       <label id="boardCountLabel">Terrains<select id="boardCourtCount"></select></label>
       <button id="boardAddGroup">Ajouter un groupe</button><button id="boardAddNote">Ajouter une note</button><button id="boardArchives">Sauvegardes du tableau</button><button id="boardExpand" aria-pressed="false">Plein écran</button>
     </div>
-    <p class="muted board-help">Glisse les portraits librement. Double-touche ou double-clique sur un élève pour l’agrandir. Appuie longuement sur un espace libre pour ajouter une note.</p>
+    <p class="muted board-help">Glisse les portraits librement. Double-touche ou double-clique sur un élève pour l’agrandir. Appuie longuement sur un espace libre pour ajouter une note. Glisse une note sur un portrait pour les associer.</p>
     <p id="boardLadderHelp" class="muted board-ladder-help" hidden>Terrain 1 en haut. Les gagnants montent vers le terrain précédent et les perdants descendent vers le suivant. Déplace les élèves à la main.</p>
     <div id="boardWorkspace" class="board-workspace"><div id="boardSurface" class="board-surface" role="region" aria-label="Tableau de ${esc(group.name)}">
       <div id="boardFloor" class="board-floor" aria-hidden="true"></div>
@@ -87,6 +89,10 @@ function renderClassBoard(group, students) {
       <form id="boardForm">
         <h2 id="boardEditorTitle"></h2>
         <label id="boardTextLabel" for="boardText"></label><textarea id="boardText" rows="4" maxlength="1200" required></textarea>
+        <label id="boardStudentLabel">Associer à un élève<select id="boardNoteStudent">
+          <option value="">Note libre</option>
+          ${students.map(student => `<option value="${esc(student.id)}">${esc(student.name)}</option>`).join('')}
+        </select></label>
         <p id="boardError" role="status"></p>
         <div class="actions"><button type="button" id="boardDelete" class="danger">Retirer du tableau</button><button type="button" id="boardCancel">Fermer</button><button class="primary" type="submit">Enregistrer</button></div>
       </form>
@@ -117,7 +123,7 @@ function renderClassBoard(group, students) {
   const markElements = new Map();
   const portraitDialog = $('boardPortraitDialog');
   const isLadder = () => ['badminton', 'pickleball'].includes(layout.background);
-  let gesture, pendingTap, editing;
+  let gesture, pendingTap, editing, highlightedStudent;
 
   function showPortrait(student) {
     if (portraitDialog.open) return;
@@ -171,7 +177,46 @@ function renderClassBoard(group, students) {
 
   function paintItems() {
     cards.forEach(({element, position}) => paint(element, position));
-    markElements.forEach(({element, position}) => paint(element, position));
+    markElements.forEach(({element, position}) => {
+      if (!position.studentId) paint(element, position);
+    });
+    cards.forEach((_, id) => paintStudentNotes(id));
+  }
+
+  function paintStudentNotes(id, dragged) {
+    const card = cards.get(id)?.element;
+    const notes = [...markElements.values()].filter(({position}) => position.studentId === id);
+    if (!card || !notes.length) return;
+    const width = surface.clientWidth, height = surface.clientHeight;
+    const cardX = parseFloat(card.style.left) * width / 100;
+    const cardY = parseFloat(card.style.top) * height / 100;
+    const step = 36;
+    const columns = Math.min(notes.length, Math.max(3, Math.floor(width / step)));
+    const rows = Math.ceil(notes.length / columns);
+    const below = cardY + card.offsetHeight / 2 + 4;
+    const above = cardY - card.offsetHeight / 2 - 4;
+    const top = below + rows * step <= height || above < height - below;
+    notes.forEach(({element}, i) => {
+      if (element === dragged) return;
+      const row = Math.floor(i / columns);
+      const inRow = Math.min(columns, notes.length - row * columns);
+      const spacing = inRow * step;
+      const left = boardClamp(cardX - spacing / 2, 0, Math.max(0, width - spacing));
+      const x = left + (i % columns + .5) * step;
+      const y = top ? below + (row + .5) * step : above - (row + .5) * step;
+      paint(element, {x: 100 * x / width, y: 100 * y / height});
+    });
+  }
+
+  function noteDropTarget(x, y) {
+    return document.elementsFromPoint(x, y).find(element => element.matches('.board-student') && surface.contains(element));
+  }
+
+  function highlightNoteTarget(target) {
+    if (target === highlightedStudent) return;
+    highlightedStudent?.classList.remove('board-note-target');
+    target?.classList.add('board-note-target');
+    highlightedStudent = target;
   }
 
   function boardIsCurrent() {
@@ -221,6 +266,7 @@ function renderClassBoard(group, students) {
     const element = document.createElement('button');
     element.type = 'button';
     element.className = 'board-student';
+    element.dataset.studentId = student.id;
     element.setAttribute('aria-label', `${student.name} · Glisser pour déplacer, double toucher pour agrandir`);
     element.title = student.name;
     const validPhoto = validRosterPortrait(student.portrait);
@@ -240,6 +286,7 @@ function renderClassBoard(group, students) {
       else if (previous) layout.positions[student.id] = previous;
       else delete layout.positions[student.id];
       paint(element, record.position);
+      paintStudentNotes(student.id);
     }, () => showPortrait(student), true);
   });
 
@@ -255,26 +302,38 @@ function renderClassBoard(group, students) {
       element.type = 'button';
       element.className = `board-marker board-marker-${mark.type}`;
       element.textContent = number ?? mark.text;
+      const owner = students.find(student => student.id === mark.studentId);
+      if (owner) element.classList.add('board-note-attached');
+      if (number) element.dataset.boardNote = '';
       element.setAttribute('aria-label', number ? `Ouvrir la note ${number}` : `Modifier le groupe ${mark.text}`);
       if (number) {
         const item = document.createElement('li');
         const link = document.createElement('button');
         link.type = 'button';
         link.textContent = number;
-        link.setAttribute('aria-label', `Lire la note ${number}`);
+        link.setAttribute('aria-label', `Lire la note ${number}${owner ? ` · ${owner.name}` : ''}`);
+        if (owner) link.title = owner.name;
         link.onclick = () => openEdit(mark.type, mark, mark);
         item.append(link);
         list.append(item);
       }
       surface.append(element);
       markElements.set(mark.id, {element, position: mark});
-      makeDraggable(element, mark, next => {
-        const {x, y} = mark;
-        Object.assign(mark, next);
-        if (!writeBoard()) Object.assign(mark, {x, y});
-        paint(element, mark);
+      makeDraggable(element, mark, (next, target) => {
+        const previous = {...mark};
+        const studentId = number ? target?.dataset.studentId : undefined;
+        Object.assign(mark, next, {studentId});
+        if (!writeBoard()) {
+          Object.assign(mark, previous, {studentId: previous.studentId});
+          paintItems();
+        } else if (studentId !== previous.studentId) {
+          showMarks();
+        } else {
+          paintItems();
+        }
       }, () => openEdit(mark.type, mark, mark));
     });
+    paintItems();
     $('boardNoteCount').textContent = noteNumber;
   }
 
@@ -299,6 +358,7 @@ function renderClassBoard(group, students) {
     clearTimeout(gesture.timer);
     cancelAnimationFrame(gesture.frame);
     if (gesture.element) gesture.element.classList.remove('board-dragging');
+    highlightNoteTarget(null);
     gesture = null;
   }
 
@@ -311,6 +371,8 @@ function renderClassBoard(group, students) {
     const dy = g.clientY - g.y + g.top - box.top;
     g.next = point(g.element, g.origin.x + dx * 100 / surface.clientWidth, g.origin.y + dy * 100 / surface.clientHeight);
     paint(g.element, g.next);
+    if (g.element.dataset.studentId) paintStudentNotes(g.element.dataset.studentId, g.element);
+    if ('boardNote' in g.element.dataset) highlightNoteTarget(noteDropTarget(g.clientX, g.clientY));
   }
 
   function scrollDuringDrag(g) {
@@ -344,9 +406,10 @@ function renderClassBoard(group, students) {
   surface.addEventListener('pointerup', event => {
     const g = gesture;
     if (!g || g.id !== event.pointerId) return;
+    const target = highlightedStudent;
     cancelGesture();
     if (g.next) {
-      g.commit(g.next);
+      g.commit(g.next, target);
     } else if (g.activate && !g.moved) {
       if (!g.twice) {
         g.activate();
@@ -373,6 +436,8 @@ function renderClassBoard(group, students) {
     $('boardTextLabel').textContent = isNote ? 'Commentaire' : 'Groupe';
     $('boardText').maxLength = isNote ? 1200 : 32;
     $('boardText').value = mark?.text || '';
+    $('boardStudentLabel').hidden = !isNote;
+    $('boardNoteStudent').value = mark?.studentId || '';
     $('boardError').textContent = '';
     $('boardDelete').hidden = !mark;
     editor.showModal();
@@ -391,7 +456,12 @@ function renderClassBoard(group, students) {
       return;
     }
     const previous = layout.marks;
-    layout.marks = mark ? previous.map(m => m === mark ? {...m, text: value} : m) : [...previous, {id: uid(), ...position, type, text: value}];
+    const studentId = type === 'note' ? $('boardNoteStudent').value || undefined : undefined;
+    const element = markElements.get(mark?.id)?.element;
+    const location = element && mark.studentId && !studentId
+      ? {x: parseFloat(element.style.left), y: parseFloat(element.style.top)} : {x: position.x, y: position.y};
+    const entry = {id: mark?.id || uid(), type, text: value, ...location, studentId};
+    layout.marks = mark ? previous.map(m => m === mark ? entry : m) : [...previous, entry];
     if (!writeBoard()) {
       layout.marks = previous;
       $('boardError').textContent = 'Enregistrement impossible sur cet appareil.';
