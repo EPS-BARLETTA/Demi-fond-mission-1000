@@ -86,3 +86,44 @@
 #boardEditor textarea { min-height: 94px; }
 #boardError:empty { display: none; }
 #boardError { color: #a62020; }
+
+.board-ladder-help { margin: 0 0 8px; }
+.board-ladder {
+  height: max(555px, calc(22px + var(--court-rows) * 173px));
+}
+.board-ladder .board-floor { padding: 27px 12px 12px; gap: 30px 14px; }
+.board-ladder .board-court { border-width: 2px; }
+.board-badminton .board-court { background: #397758; }
+.board-pickleball .board-court { background: #386989; }
+.board-ladder .board-court b {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  color: var(--ink);
+  white-space: nowrap;
+  padding-bottom: 4px;
+  font-size: 13px;
+}
+.board-ladder .board-court i:nth-child(-n+2) { top: 0; bottom: 0; left: 34%; border-left: 2px solid; }
+.board-ladder .board-court i:nth-child(2) { left: 66%; }
+.board-ladder .board-court i:nth-child(n+3) { top: 50%; width: 34%; border-top: 2px solid; }
+.board-ladder .board-court i:nth-child(3) { left: 0; }
+.board-ladder .board-court i:nth-child(4) { right: 0; }
+.board-pickleball .board-court::after { content: ""; top: 0; bottom: 0; left: 34%; right: 34%; background: #ffffff1c; }
+.board-badminton .board-court::after { content: ""; inset: 12% 0; border-block: 1px solid; }
+.board-student > span:last-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.board-portrait-dialog { max-width: 365px; text-align: center; }
+.board-portrait-dialog h2 { margin: 14px 0; }
+.board-portrait-dialog img {
+  display: block;
+  margin: auto;
+  width: min(235px, 100%);
+  height: auto;
+  max-height: 52vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
