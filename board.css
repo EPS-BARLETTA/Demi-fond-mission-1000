@@ -127,3 +127,19 @@
   object-fit: contain;
   border-radius: 12px;
 }
+
+.board-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 74px; gap: 8px; align-items: start; }
+.board-notes { position: sticky; top: 8px; max-height: 70vh; overflow: auto; text-align: center; padding: 5px; border: 1px solid var(--line); border-radius: 10px; }
+.board-notes h2 { font-size: 13px; margin: 0 0 5px; }
+.board-notes h2 span { display: block; }
+.board-notes ol, .board-archive-list { list-style: none; padding: 0; margin: 0; }
+.board-notes ol { display: grid; gap: 4px; }
+.board-notes button { width: 100%; padding: 3px; background: #fff3ce; }
+.board-marker-note { min-width: 42px; text-align: center; }
+.board-archive-controls, .board-archive-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.board-archive-controls input, .board-archive-list li span { min-width: 0; flex: 1 1 140px; overflow-wrap: anywhere; }
+.board-archive-list li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+#boardArchiveStatus:empty { display: none; }
+@media (max-width: 550px) {
+  .board-workspace { grid-template-columns: minmax(0, 1fr) 50px; gap: 4px; }
+}

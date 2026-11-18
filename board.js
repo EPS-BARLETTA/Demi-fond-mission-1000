@@ -21,30 +21,64 @@ function boardFirstName(name) {
   return words.slice(firstGiven, lastGiven < 0 ? undefined : lastGiven).join(' ');
 }
 
-function renderClassBoard(group, students) {
-  const raw = group.board || {};
-  const background = Object.hasOwn(BOARD_BACKGROUNDS, raw.background) ? raw.background : 'blank';
-  const groups = Array.isArray(raw.marks) ? raw.marks.filter(m => m && /^[\w-]+$/.test(m.id) && ['note', 'group'].includes(m.type) && typeof m.text === 'string').slice(0, 100) : [];
-  const layout = {
-    background,
+function normalizeBoard(raw, studentIds) {
+  const positions = {};
+  for (const id of studentIds) {
+    const point = raw.positions?.[id];
+    if (Number.isFinite(point?.x) && Number.isFinite(point?.y)) {
+      positions[id] = {x: boardNumber(point.x, 50), y: boardNumber(point.y, 50)};
+    }
+  }
+  const marks = Array.isArray(raw.marks) ? raw.marks : [];
+  return {
+    background: Object.hasOwn(BOARD_BACKGROUNDS, raw.background) ? raw.background : 'blank',
     courts: boardClamp(Math.round(Number(raw.courts)) || 1, 1, 4),
     ladderCourts: boardClamp(Math.round(Number(raw.ladderCourts)) || 6, 1, 12),
-    positions: {...raw.positions},
-    marks: groups.map(m => ({...m, x: boardNumber(m.x, 50), y: boardNumber(m.y, 50)})),
+    positions,
+    marks: marks.filter(m => m && typeof m.id === 'string' && /^[\w-]{1,80}$/.test(m.id) &&
+      ['note', 'group'].includes(m.type) && typeof m.text === 'string').slice(0, 100).map(m => ({
+      id: m.id, type: m.type, text: m.text.slice(0, m.type === 'note' ? 1200 : 32),
+      x: boardNumber(m.x, 50), y: boardNumber(m.y, 50),
+    })),
   };
+}
+
+function renderClassBoard(group, students) {
+  const studentIds = students.map(p => p.id);
+  const layout = normalizeBoard(group.board || {}, studentIds);
+  const {background} = layout;
   const content = $('content');
   content.innerHTML = `<section class="card class-board">
     <div class="board-toolbar">
       <label>Fond<select id="boardBackground">${Object.entries(BOARD_BACKGROUNDS).filter(([key]) => key !== 'tennis' || background === 'tennis').map(([key, label]) =>
         `<option value="${key}" ${key === background ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label id="boardCountLabel">Terrains<select id="boardCourtCount"></select></label>
-      <button id="boardAddGroup">Ajouter un groupe</button><button id="boardAddNote">Ajouter une note</button>
+      <button id="boardAddGroup">Ajouter un groupe</button><button id="boardAddNote">Ajouter une note</button><button id="boardArchives">Sauvegardes du tableau</button>
     </div>
     <p class="muted board-help">Glisse les portraits librement. Double-touche ou double-clique sur un élève pour l’agrandir. Appuie longuement sur un espace libre pour ajouter une note.</p>
     <p id="boardLadderHelp" class="muted board-ladder-help" hidden>Terrain 1 en haut. Les gagnants montent vers le terrain précédent et les perdants descendent vers le suivant. Déplace les élèves à la main.</p>
-    <div id="boardSurface" class="board-surface" role="region" aria-label="Tableau de ${esc(group.name)}">
+    <div class="board-workspace"><div id="boardSurface" class="board-surface" role="region" aria-label="Tableau de ${esc(group.name)}">
       <div id="boardFloor" class="board-floor" aria-hidden="true"></div>
     </div>
+    <aside class="board-notes" aria-labelledby="boardNotesTitle">
+      <h2 id="boardNotesTitle">Notes <span id="boardNoteCount">0</span></h2>
+      <ol id="boardNoteList"></ol>
+    </aside></div>
+    <dialog id="boardArchiveDialog" aria-labelledby="boardArchiveTitle">
+      <h2 id="boardArchiveTitle">Sauvegardes du tableau</h2>
+      <form id="boardSaveCopy">
+        <label for="boardArchiveName">Nom de la sauvegarde</label>
+        <div class="board-archive-controls"><input id="boardArchiveName" maxlength="80" required><button class="primary">Enregistrer une copie</button></div>
+      </form>
+      <ul id="boardArchiveList" class="board-archive-list"></ul>
+      <p class="muted">Le fichier contient le fond, les positions, les groupes et les notes. À la réouverture, les portraits viennent de la classe.</p>
+      <p id="boardArchiveStatus" role="status"></p>
+      <div class="actions">
+        <button id="boardDownload">Télécharger le tableau</button>
+        <button id="boardUpload">Ouvrir un fichier</button><input type="file" id="boardArchiveFile" accept=".json,application/json" hidden>
+        <button id="boardCloseArchive">Fermer</button>
+      </div>
+    </dialog>
     <dialog id="boardPortraitDialog" class="board-portrait-dialog" aria-labelledby="boardPortraitName">
       <div id="boardLargePortrait"></div><h2 id="boardPortraitName"></h2>
       <form method="dialog"><button>Fermer le portrait</button></form>
@@ -194,12 +228,26 @@ function renderClassBoard(group, students) {
   function showMarks() {
     markElements.forEach(({element}) => element.remove());
     markElements.clear();
+    const list = $('boardNoteList');
+    list.replaceChildren();
+    let noteNumber = 0;
     layout.marks.forEach(mark => {
+      const number = mark.type === 'note' ? ++noteNumber : null;
       const element = document.createElement('button');
       element.type = 'button';
       element.className = `board-marker board-marker-${mark.type}`;
-      element.textContent = mark.type === 'note' ? 'Note' : mark.text;
-      element.setAttribute('aria-label', mark.type === 'note' ? 'Ouvrir la note' : `Modifier le groupe ${mark.text}`);
+      element.textContent = number ?? mark.text;
+      element.setAttribute('aria-label', number ? `Ouvrir la note ${number}` : `Modifier le groupe ${mark.text}`);
+      if (number) {
+        const item = document.createElement('li');
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.textContent = number;
+        link.setAttribute('aria-label', `Lire la note ${number}`);
+        link.onclick = () => openEdit(mark.type, mark, mark);
+        item.append(link);
+        list.append(item);
+      }
       surface.append(element);
       markElements.set(mark.id, {element, position: mark});
       makeDraggable(element, mark, next => {
@@ -209,6 +257,7 @@ function renderClassBoard(group, students) {
         paint(element, mark);
       }, () => openEdit(mark.type, mark, mark));
     });
+    $('boardNoteCount').textContent = noteNumber;
   }
 
   function startGesture(event, element, origin, commit, activate, twice) {
@@ -300,7 +349,8 @@ function renderClassBoard(group, students) {
     if (editor.open) return;
     editing = {type, position, mark};
     const isNote = type === 'note';
-    $('boardEditorTitle').textContent = isNote ? 'Note du tableau' : 'Nom du groupe';
+    const notes = layout.marks.filter(entry => entry.type === 'note');
+    $('boardEditorTitle').textContent = isNote ? `Note ${mark ? notes.indexOf(mark) + 1 : notes.length + 1}` : 'Nom du groupe';
     $('boardTextLabel').textContent = isNote ? 'Commentaire' : 'Groupe';
     $('boardText').maxLength = isNote ? 1200 : 32;
     $('boardText').value = mark?.text || '';
@@ -358,6 +408,103 @@ function renderClassBoard(group, students) {
     layout[key] = Number(event.target.value);
     if (!writeBoard()) layout[key] = previous;
     paintFloor();
+  };
+  function snapshot() {
+    return normalizeBoard({...layout, positions: Object.fromEntries(
+      [...cards].map(([id, {element, position}]) => [id, point(element, position.x, position.y)])
+    )}, studentIds);
+  }
+
+  const archiveDialog = $('boardArchiveDialog');
+  const archiveStatus = $('boardArchiveStatus');
+  const archiveName = $('boardArchiveName');
+  const archives = () => Array.isArray(group.boardArchives) ? group.boardArchives : [];
+
+  function addArchive(name, board) {
+    const previous = group.boardArchives;
+    if (archives().length >= 50) {
+      archiveStatus.textContent = 'Tu as atteint 50 sauvegardes pour cette classe.';
+      return false;
+    }
+    group.boardArchives = [...archives(), {id: uid(), name, board}];
+    if (save()) return true;
+    group.boardArchives = previous;
+    archiveStatus.textContent = 'La sauvegarde n’a pas pu être enregistrée sur cet appareil.';
+    return false;
+  }
+
+  function listArchives() {
+    const list = $('boardArchiveList');
+    list.replaceChildren();
+    for (const entry of [...archives()].reverse()) {
+      const item = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = entry.name;
+      const open = document.createElement('button');
+      open.textContent = 'Ouvrir';
+      open.setAttribute('aria-label', `Ouvrir la sauvegarde ${entry.name}`);
+      open.onclick = () => {
+        if (!confirm('Ouvrir cette copie à la place du tableau affiché ? Les copies enregistrées restent disponibles.')) return;
+        const previous = group.board;
+        group.board = normalizeBoard(entry.board, studentIds);
+        if (save()) render();
+        else group.board = previous;
+      };
+      const remove = document.createElement('button');
+      remove.textContent = 'Supprimer';
+      remove.setAttribute('aria-label', `Supprimer la sauvegarde ${entry.name}`);
+      remove.onclick = () => {
+        if (!confirm(`Supprimer la sauvegarde « ${entry.name} » ?`)) return;
+        const previous = group.boardArchives;
+        group.boardArchives = previous.filter(copy => copy !== entry);
+        if (save()) listArchives();
+        else group.boardArchives = previous;
+      };
+      item.append(name, open, remove);
+      list.append(item);
+    }
+  }
+
+  $('boardArchives').onclick = () => {
+    archiveName.value = `Tableau du ${new Date().toLocaleDateString('fr-FR')}`;
+    archiveStatus.textContent = '';
+    listArchives();
+    archiveDialog.showModal();
+  };
+  $('boardCloseArchive').onclick = () => archiveDialog.close();
+  $('boardSaveCopy').onsubmit = event => {
+    event.preventDefault();
+    const name = archiveName.value.trim();
+    if (!name || !addArchive(name, snapshot())) return;
+    listArchives();
+    archiveStatus.textContent = 'Copie enregistrée dans Mission 1000.';
+  };
+  $('boardDownload').onclick = () => {
+    const name = archiveName.value.trim() || `Tableau du ${new Date().toLocaleDateString('fr-FR')}`;
+    const data = {format: 'mission1000-board', version: 1, classId: group.id, name, board: snapshot()};
+    download(`Mission1000-Tableau-${group.name.replace(/[^a-z0-9_-]/gi, '_')}-${today()}.json`, JSON.stringify(data), 'application/json');
+  };
+  $('boardUpload').onclick = () => $('boardArchiveFile').click();
+  $('boardArchiveFile').onchange = async event => {
+    const input = event.target;
+    const file = input.files[0];
+    if (!file) return;
+    try {
+      if (file.size > 500000) throw Error('Ce fichier est trop volumineux.');
+      const data = JSON.parse(await file.text());
+      if (data?.format !== 'mission1000-board' || data.version !== 1 ||
+          !data.board || !Object.hasOwn(BOARD_BACKGROUNDS, data.board.background) ||
+          typeof data.name !== 'string' || !data.name.trim()) throw Error('Choisis un fichier de tableau Mission 1000.');
+      if (data.classId !== group.id) throw Error('Ouvre la classe d’origine pour importer ce tableau.');
+      if (addArchive(data.name.trim().slice(0, 80), normalizeBoard(data.board, studentIds))) {
+        listArchives();
+        archiveStatus.textContent = 'Fichier importé. Choisis « Ouvrir » pour afficher cette copie.';
+      }
+    } catch (error) {
+      archiveStatus.textContent = error instanceof SyntaxError ? 'Le fichier de tableau est illisible.' : error.message;
+    } finally {
+      input.value = '';
+    }
   };
   paintFloor();
   showMarks();
