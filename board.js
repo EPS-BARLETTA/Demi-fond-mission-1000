@@ -53,11 +53,11 @@ function renderClassBoard(group, students) {
       <label>Fond<select id="boardBackground">${Object.entries(BOARD_BACKGROUNDS).filter(([key]) => key !== 'tennis' || background === 'tennis').map(([key, label]) =>
         `<option value="${key}" ${key === background ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label id="boardCountLabel">Terrains<select id="boardCourtCount"></select></label>
-      <button id="boardAddGroup">Ajouter un groupe</button><button id="boardAddNote">Ajouter une note</button><button id="boardArchives">Sauvegardes du tableau</button>
+      <button id="boardAddGroup">Ajouter un groupe</button><button id="boardAddNote">Ajouter une note</button><button id="boardArchives">Sauvegardes du tableau</button><button id="boardExpand" aria-pressed="false">Plein écran</button>
     </div>
     <p class="muted board-help">Glisse les portraits librement. Double-touche ou double-clique sur un élève pour l’agrandir. Appuie longuement sur un espace libre pour ajouter une note.</p>
     <p id="boardLadderHelp" class="muted board-ladder-help" hidden>Terrain 1 en haut. Les gagnants montent vers le terrain précédent et les perdants descendent vers le suivant. Déplace les élèves à la main.</p>
-    <div class="board-workspace"><div id="boardSurface" class="board-surface" role="region" aria-label="Tableau de ${esc(group.name)}">
+    <div id="boardWorkspace" class="board-workspace"><div id="boardSurface" class="board-surface" role="region" aria-label="Tableau de ${esc(group.name)}">
       <div id="boardFloor" class="board-floor" aria-hidden="true"></div>
     </div>
     <aside class="board-notes" aria-labelledby="boardNotesTitle">
@@ -92,7 +92,25 @@ function renderClassBoard(group, students) {
       </form>
     </dialog>
   </section>`;
+  const panel = content.querySelector('.class-board');
   const surface = $('boardSurface');
+  const workspace = $('boardWorkspace');
+  const expand = $('boardExpand');
+
+  function setExpanded(expanded) {
+    panel.classList.toggle('board-expanded', expanded);
+    expand.textContent = expanded ? 'Quitter le plein écran' : 'Plein écran';
+    expand.setAttribute('aria-pressed', String(expanded));
+  }
+
+  expand.onclick = () => setExpanded(!panel.classList.contains('board-expanded'));
+  panel.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && panel.classList.contains('board-expanded') && !panel.querySelector('dialog[open]')) {
+      event.preventDefault();
+      setExpanded(false);
+      expand.focus();
+    }
+  });
   const floor = $('boardFloor');
   const editor = $('boardEditor');
   const cards = new Map();
@@ -297,11 +315,12 @@ function renderClassBoard(group, students) {
 
   function scrollDuringDrag(g) {
     if (gesture !== g || !isLadder()) return;
+    const viewport = panel.classList.contains('board-expanded') ? workspace.getBoundingClientRect() : {top: 0, bottom: window.innerHeight};
+    const scrollArea = panel.classList.contains('board-expanded') ? workspace : window;
     const margin = 68;
-    const lower = window.innerHeight - margin;
     const box = surface.getBoundingClientRect();
-    if (g.clientY < margin && box.top < 0) window.scrollBy(0, -10);
-    if (g.clientY > lower && box.bottom > window.innerHeight) window.scrollBy(0, 10);
+    if (g.clientY < viewport.top + margin && box.top < viewport.top) scrollArea.scrollBy(0, -10);
+    if (g.clientY > viewport.bottom - margin && box.bottom > viewport.bottom) scrollArea.scrollBy(0, 10);
     paintDragged(g);
     g.frame = requestAnimationFrame(() => scrollDuringDrag(g));
   }

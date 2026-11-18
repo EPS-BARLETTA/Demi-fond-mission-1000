@@ -27,9 +27,21 @@
   position: relative;
   border: 2px solid #fff;
   border-radius: 3px;
-  background: #23754b;
+  background: var(--court-color, #23754b);
   color: white;
 }
+/* The same twelve colors identify the same court numbers in either ladder. */
+.board-court:nth-child(2) { --court-color: #2357a0; }
+.board-court:nth-child(3) { --court-color: #ac451e; }
+.board-court:nth-child(4) { --court-color: #693e99; }
+.board-court:nth-child(5) { --court-color: #147179; }
+.board-court:nth-child(6) { --court-color: #9c2f4b; }
+.board-court:nth-child(7) { --court-color: #806117; }
+.board-court:nth-child(8) { --court-color: #474b94; }
+.board-court:nth-child(9) { --court-color: #526d2a; }
+.board-court:nth-child(10) { --court-color: #743758; }
+.board-court:nth-child(11) { --court-color: #5a4b44; }
+.board-court:nth-child(12) { --court-color: #34556b; }
 .board-court::before, .board-court::after, .board-court i { position: absolute; box-sizing: border-box; }
 .board-court::before { content: ""; left: 50%; top: 0; height: 100%; border-left: 2px solid currentColor; }
 .board-team .board-court::after, .board-basket .board-court::after {
@@ -38,10 +50,7 @@
 .board-team .board-court i:nth-child(-n+2), .board-basket .board-court i:nth-child(-n+2) { top: 24%; height: 52%; width: 17%; border: 2px solid; }
 .board-team .board-court i:first-child, .board-basket .board-court i:first-child { left: -2px; }
 .board-team .board-court i:nth-child(2), .board-basket .board-court i:nth-child(2) { right: -2px; }
-.board-basket .board-court { background: #ad6238; }
 .board-basket .board-court i:nth-child(-n+2) { border-radius: 48%; }
-.board-racket .board-court { background: #32686a; }
-.board-tennis .board-court { background: #326196; }
 .board-tennis .board-court::after { content: ""; inset: 14% 0; border-block: 2px solid; }
 .board-racket .board-court i:nth-child(-n+2), .board-tennis .board-court i:nth-child(-n+2) { top: 0; bottom: 0; left: 30%; border-left: 2px solid; }
 .board-racket .board-court i:nth-child(2), .board-tennis .board-court i:nth-child(2) { left: 70%; }
@@ -91,17 +100,17 @@
 .board-ladder {
   height: max(555px, calc(22px + var(--court-rows) * 173px));
 }
-.board-ladder .board-floor { padding: 27px 12px 12px; gap: 30px 14px; }
+.board-ladder .board-floor { padding: 12px; gap: 16px 14px; }
 .board-ladder .board-court { border-width: 2px; }
-.board-badminton .board-court { background: #397758; }
-.board-pickleball .board-court { background: #386989; }
 .board-ladder .board-court b {
   position: absolute;
-  bottom: 100%;
-  left: 0;
+  inset: 8px auto auto 8px;
+  z-index: 1;
+  padding: 3px 8px;
+  border-radius: 6px;
   color: var(--ink);
+  background: #fff;
   white-space: nowrap;
-  padding-bottom: 4px;
   font-size: 13px;
 }
 .board-ladder .board-court i:nth-child(-n+2) { top: 0; bottom: 0; left: 34%; border-left: 2px solid; }
@@ -143,3 +152,29 @@
 @media (max-width: 550px) {
   .board-workspace { grid-template-columns: minmax(0, 1fr) 50px; gap: 4px; }
 }
+
+/* Full-window view also works when the browser's Fullscreen API is unavailable. */
+body:has(.board-expanded) { overflow: hidden; }
+.class-board.board-expanded {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  margin: 0;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  border: 0;
+  border-radius: 0;
+  background: var(--bg, #f8fafc);
+  display: flex;
+  flex-direction: column;
+}
+.board-expanded .board-workspace {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  grid-template-rows: minmax(100%, auto);
+}
+.board-expanded .board-surface:not(.board-ladder) { height: 100%; min-height: 300px; }
+.board-expanded .board-ladder { min-height: 100%; }
+.board-expanded .board-help { margin-block: 6px; }

@@ -1,4 +1,4 @@
-const CACHE='mission1000-v16';
+const CACHE='mission1000-v17';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./observer-sheet.js','./trombinoscope.js','./board.js','./board.css','./icon.svg','./manifest.webmanifest','./fiche-observateur-1000m.pdf','./ocr/client/tesseract.min.js','./ocr/client/worker.min.js','./ocr/core/tesseract-core-lstm.js','./ocr/client/tesseract-core-lstm.wasm','./ocr/lang/fra.traineddata.gz']))) });
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('mission1000-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(res=>{if(res.ok){const copy=res.clone();e.waitUntil(caches.open(CACHE).then(c=>c.put(e.request,copy)))}return res}).catch(()=>caches.match(e.request).then(r=>r||(e.request.mode==='navigate'?caches.match('./index.html'):Response.error()))))});
