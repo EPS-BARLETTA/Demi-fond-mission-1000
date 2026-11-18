@@ -76,3 +76,9 @@ S4 : présence et deux temps de 500 m, repère de régularité hors note. S5 et 
 La clé de stockage `mission1000-v1`, les identifiants, les anciens relevés et les validations sont conservés. Version interface et cache : v10.
 
 La fiche observateur PDF est générée sur l’appareil à partir de la longueur de piste de la séance sélectionnée : quatre cartes A4, tours complets à cocher, repères exacts 500 m et 1000 m (tours et mètres supplémentaires). Le chrono reste cumulé.
+
+### Importer un trombinoscope PRONOTE
+
+Dans **Gérer les classes → Importer un trombinoscope**, sélectionne une capture JPG ou PNG avec les portraits et les noms en dessous. Pour une classe existante, vérifie les associations proposées et choisis manuellement un élève, ou ignore le portrait, si nécessaire. Les identifiants, les chronos et les évaluations sont conservés. Pour une nouvelle classe, tu peux corriger les noms avant de l’enregistrer.
+
+La lecture et le recadrage s’effectuent dans le navigateur avec Tesseract.js 6.0.1, Tesseract.js Core 6.0.0 et le modèle français `@tesseract.js-data/fra` 1.0.0. Les portraits restent sur l’appareil et sont exclus des exports.
