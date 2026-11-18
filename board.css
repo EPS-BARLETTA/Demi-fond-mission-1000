@@ -1,0 +1,88 @@
+.class-board { padding: 14px; }
+.board-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; }
+.board-toolbar label { min-width: 85px; }
+.board-help { margin: 10px 0; }
+.board-surface {
+  position: relative;
+  isolation: isolate;
+  height: max(555px, 65vh);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.board-floor { position: absolute; inset: 0; pointer-events: none; }
+.board-floor:not(.board-blank):not(.board-scale) {
+  display: grid;
+  padding: 18px;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+}
+.board-floor[data-count="1"] { grid-template-columns: minmax(0, 1fr) !important; }
+.board-court {
+  position: relative;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  background: #23754b;
+  color: white;
+}
+.board-court::before, .board-court::after, .board-court i { position: absolute; box-sizing: border-box; }
+.board-court::before { content: ""; left: 50%; top: 0; height: 100%; border-left: 2px solid currentColor; }
+.board-team .board-court::after, .board-basket .board-court::after {
+  content: ""; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(18%, 98px); aspect-ratio: 1; border: 2px solid; border-radius: 50%;
+}
+.board-team .board-court i:nth-child(-n+2), .board-basket .board-court i:nth-child(-n+2) { top: 24%; height: 52%; width: 17%; border: 2px solid; }
+.board-team .board-court i:first-child, .board-basket .board-court i:first-child { left: -2px; }
+.board-team .board-court i:nth-child(2), .board-basket .board-court i:nth-child(2) { right: -2px; }
+.board-basket .board-court { background: #ad6238; }
+.board-basket .board-court i:nth-child(-n+2) { border-radius: 48%; }
+.board-racket .board-court { background: #32686a; }
+.board-tennis .board-court { background: #326196; }
+.board-tennis .board-court::after { content: ""; inset: 14% 0; border-block: 2px solid; }
+.board-racket .board-court i:nth-child(-n+2), .board-tennis .board-court i:nth-child(-n+2) { top: 0; bottom: 0; left: 30%; border-left: 2px solid; }
+.board-racket .board-court i:nth-child(2), .board-tennis .board-court i:nth-child(2) { left: 70%; }
+.board-racket .board-court i:nth-child(3), .board-tennis .board-court i:nth-child(3) { top: 50%; left: 30%; right: 30%; border-top: 2px solid; }
+.board-scale { display: grid; grid-template-rows: repeat(20, minmax(0, 1fr)); padding: 22px 0; }
+.board-tick { display: flex; align-items: center; border-bottom: 1px solid #dbe5ef; background: #f6f9fd; }
+.board-tick:nth-child(even) { background: #eaf1f9; }
+.board-tick b { padding-inline: 5px; color: #385473; font-size: 12px; }
+.board-movable {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.board-movable:active { cursor: grabbing; }
+.board-student {
+  z-index: 2;
+  width: clamp(46px, 8vw, 76px);
+  min-height: 56px;
+  padding: 3px;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  box-shadow: 0 1px 5px #19365745;
+  border-color: #b6ccdf;
+  line-height: 1.1;
+}
+.board-student > span:last-child { width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 10px; }
+.board-student img, .board-initials { width: 35px; height: 39px; border-radius: 5px; }
+.board-student img { object-fit: cover; pointer-events: none; }
+.board-initials { display: grid; place-items: center; background: #dce9fc; font-size: 13px; color: #174880; }
+.board-marker-note { z-index: 3; background: #ffe5a1; border-color: #9a660d; color: #613c00; padding: 5px 10px; }
+.board-marker-group { z-index: 1; max-width: 25%; background: #d9e8ff; border-color: #6089c5; padding: 4px 10px; font-size: 13px; overflow-wrap: anywhere; }
+.board-marker-group::after {
+  content: ""; pointer-events: none; position: absolute; inset: 100% -34px auto; min-width: 95px; height: 100px;
+  background: #8bb7fc3d; border: 2px dashed #6089c5; border-radius: 0 0 12px 12px;
+}
+.board-movable.board-dragging { z-index: 5; box-shadow: 0 4px 9px #19365755; }
+#boardEditor textarea { min-height: 94px; }
+#boardError:empty { display: none; }
+#boardError { color: #a62020; }
